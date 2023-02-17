@@ -3,7 +3,22 @@ library(ggplot2)
 
 dat <- read.csv("RWNS_final.csv", header = T)
 
-dat$average_score <- rowMeans(dat[, c("k3en", "k3ma", "k3sc")], na.rm = TRUE)
+dat$average_k3_score <- rowMeans(dat[, c("k3en", "k3ma", "k3sc")], na.rm = TRUE)
+dat$hiquamum <- factor(dat$hiquamum , levels=c("Degree_or_equivalent", "HE_below_degree_level", "GCE_A_Level_or_equivalent"
+                                               , "GCSE_grades_A-C_or_equiv", "Other_qualifications", "No_qualification", "missing"))
+dat$attitude <- factor(dat$attitude , levels=c("very_high", "high", "low", "very_low"))
+dat$FSMband <- factor(dat$FSMband , levels=c("35pr+","21pr-35pr","13pr-21pr", "9pr-13pr", "5pr-9pr","<5pr"))
+dat$SECshort <- factor(dat$SECshort , levels=c("Managerial_and_professional", "Intermediate", "Routine,_semi-routine_or_unemployed"))
+dat$singlepar <- factor(dat$singlepar , levels=c("no", "yes", "missing"))
+dat$house <- factor(dat$house , levels=c("owned", "rented", "other/DK/Ref"))
+dat$fsm <- factor(dat$fsm , levels=c("no", "yes", "missing"))
+dat$parasp <- factor(dat$parasp , levels=c("No", "Yes", "missing"))
+dat$computer <- factor(dat$computer , levels=c("No", "Yes", "missing"))
+dat$tuition <- factor(dat$tuition , levels=c("No", "Yes", "missing"))
+dat$sen <- factor(dat$sen , levels=c("No", "Yes", "missing"))
+dat$absent <- factor(dat$absent , levels=c("No", "Yes", "missing"))
+dat$exclude <- factor(dat$exclude , levels=c("No", "Yes", "missing"))
+
 
 # Missing could be an indicator, so think about what you what to do
 dat.1 <- subset(dat, is.na(IDACI_n)== F & hiquamum != "missing"
@@ -20,6 +35,10 @@ head(dat, 4)
 
 summary(dat)
 
+# ks4score
+p1 <- ggplot(data = dat, aes(y=ks4score)) + geom_boxplot()
+p1  
+
 # gender, non significant
 p1 <- ggplot(data = dat, aes(x=gender, y=ks4score, fill=gender)) + geom_boxplot()
 p1  
@@ -28,8 +47,7 @@ p1 <- ggplot(data = dat.1, aes(x=gender, y=ks4score, fill=gender)) + geom_boxplo
 p1  
 
 # hiquamum, significant
-dat$hiquamum <- factor(dat$hiquamum , levels=c("Degree_or_equivalent", "HE_below_degree_level", "GCE_A_Level_or_equivalent"
-                                               , "GCSE_grades_A-C_or_equiv", "Other_qualifications", "No_qualification", "missing"))
+
 p1 <- ggplot(data = dat, aes(x=hiquamum, y=ks4score, fill=hiquamum)) + geom_boxplot()
 p1  
 
@@ -94,7 +112,6 @@ p1 <- ggplot(data = dat.1, aes(x=homework, y=ks4score, fill=homework)) + geom_bo
 p1  
 
 # attitude
-dat$attitude <- factor(dat$attitude , levels=c("very_low", "low", "high", "very_high"))
 p1 <- ggplot(data = dat, aes(x=attitude, y=ks4score, fill=attitude)) + geom_boxplot()
 p1  
 
@@ -137,7 +154,6 @@ p1 <- ggplot(data = dat.1, aes(x=IDACI_n, y=ks4score, fill=IDACI_n)) + geom_poin
 p1 
 
 # FSMband
-dat$FSMband <- factor(dat$FSMband , levels=c("<5pr", "5pr-9pr", "9pr-13pr", "13pr-21pr","21pr-35pr","35pr+"))
 p1 <- ggplot(data = dat, aes(x=FSMband, y=ks4score, fill=FSMband)) + geom_boxplot()
 p1  
 
@@ -164,13 +180,18 @@ p1
 p1 <- ggplot(data = dat, aes(x=k3sc, y=ks4score, fill=factor(k3sc))) + geom_boxplot()
 p1  
 
-p1 <- ggplot(data = dat, aes(x=average_score, y=ks4score, fill=factor(average_score))) + geom_boxplot()
+p1 <- ggplot(data = dat, aes(x=average_k3_score, y=ks4score, fill=factor(average_k3_score))) + geom_boxplot()
 p1  
 
 
-lm <- lm(ks4score~ ., data=dat)
+lm <- lm(ks4score~ -average_k3_score., data=dat)
 display(lm)
 summary(lm)
+coef(lm)
+
+lm.0 <- lm(ks4score~ ., data=dat)
+display(lm.0)
+summary(lm.0)
 coef(lm)
 
 par(mfrow=c(2,2))
@@ -192,7 +213,7 @@ hist(rstandard(lm.1), freq = FALSE ,
 
 
 # Removed variables we initially thought are not important
-lm.2 <- lm(ks4score~ . -IDACI_n -gender -SECshort -tuition -fiveem
+lm.2 <- lm(ks4score~ . -IDACI_n -gender -tuition -fiveem
            -k3en -k3ma -k3sc, data=dat)
 display(lm.2)
 summary(lm.2)
@@ -204,7 +225,7 @@ hist(rstandard(lm.2), freq = FALSE ,
      main="Histogram of standardised residuals",
      cex.main=0.8, xlab="Standardised residuals")
 
-lm.3 <- lm(ks4score~ . -IDACI_n -gender -SECshort -tuition -fiveem
+lm.3 <- lm(ks4score~ . -IDACI_n -gender -tuition -fiveem
            -k3en -k3ma -k3sc, data=dat.1)
 display(lm.3)
 summary(lm.3)
@@ -218,7 +239,7 @@ hist(rstandard(lm.3), freq = FALSE ,
 
 # second model
 lm.4 <- lm(ks4score~ . -IDACI_n -gender -SECshort -tuition -fiveem
-           -k3en -k3ma -k3sc -fsm -singlepar -parasp -computer
+           -k3en -k3ma -k3sc -fsm -parasp
            -absent, data=dat)
 display(lm.4)
 summary(lm.4)
@@ -233,8 +254,7 @@ hist(rstandard(lm.4), freq = FALSE ,
 
 # dropping more variables we found to be not significant
 lm.5 <- lm(ks4score~ . -IDACI_n -gender -SECshort -tuition -fiveem
-           -k3en -k3ma -k3sc -fsm -singlepar -parasp -computer
-           -absent, data=dat.1)
+           -k3en -k3ma -k3sc -fsm -parasp, data=dat.1)
 display(lm.5)
 summary(lm.5)
 coef(lm.5)
@@ -246,3 +266,5 @@ hist(rstandard(lm.5), freq = FALSE ,
      cex.main=0.8, xlab="Standardised residuals")
 
 
+lm.test <- lm(ks4score~ FSMband,data=dat)
+display(lm.test)
