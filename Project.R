@@ -184,7 +184,7 @@ p1 <- ggplot(data = dat, aes(x=average_k3_score, y=ks4score, fill=factor(average
 p1  
 
 
-lm <- lm(ks4score~ -average_k3_score., data=dat)
+lm <- lm(ks4score~. -average_k3_score, data=dat)
 display(lm)
 summary(lm)
 coef(lm)
@@ -265,6 +265,15 @@ hist(rstandard(lm.5), freq = FALSE ,
      main="Histogram of standardised residuals",
      cex.main=0.8, xlab="Standardised residuals")
 
+lm.6 <- lm(ks4score~ . -IDACI_n -gender -SECshort -tuition -fiveem
+           -k3en -k3ma -k3sc -fsm -parasp+ house*computer, data=dat)
+display(lm.6)
+summary(lm.6)
+coef(lm.6)
+
+abs(range(dat$ks4score))
 
 lm.test <- lm(ks4score~ FSMband,data=dat)
 display(lm.test)
+
+
