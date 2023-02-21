@@ -4,6 +4,7 @@ library(ggplot2)
 dat <- read.csv("RWNS_final.csv", header = T)
 
 dat$average_k3_score <- rowMeans(dat[, c("k3en", "k3ma", "k3sc")], na.rm = TRUE)
+
 dat$hiquamum <- factor(dat$hiquamum , levels=c("Degree_or_equivalent", "HE_below_degree_level", "GCE_A_Level_or_equivalent"
                                                , "GCSE_grades_A-C_or_equiv", "Other_qualifications", "No_qualification", "missing"))
 dat$attitude <- factor(dat$attitude , levels=c("very_high", "high", "low", "very_low"))
@@ -20,6 +21,29 @@ dat$absent <- factor(dat$absent , levels=c("No", "Yes", "missing"))
 dat$exclude <- factor(dat$exclude , levels=c("No", "Yes", "missing"))
 
 
+# Added this after doing regressions because wanted to reduce the number of coefficients in the final model
+dat$new_hiquamum <- dat$hiquamum
+dat$new_homework <- factor(dat$homework)
+dat$new_attitude <- dat$attitude
+dat$new_FSMband <- dat$FSMband
+
+levels(dat$new_hiquamum)[levels(dat$new_hiquamum)%in%c("Degree_or_equivalent","HE_below_degree_level")] <- "Degree/HE"
+levels(dat$new_hiquamum)[levels(dat$new_hiquamum)%in%c("GCE_A_Level_or_equivalent","GCSE_grades_A-C_or_equiv")] <-  "A-Levels/GCSE"
+
+levels(dat$new_homework)[levels(dat$new_homework)%in%c("none","1_evening","2_evenings")] <-  "0-2 evenings"
+levels(dat$new_homework)[levels(dat$new_homework)%in%c("3_evenings","4_evenings","5_evenings")] <-  "3-5 evenings"
+
+levels(dat$new_attitude)[levels(dat$new_attitude)%in%c("very_high","high")] <-  "high"
+levels(dat$new_attitude)[levels(dat$new_attitude)%in%c("very_low","low")] <- "low"
+
+levels(dat$new_FSMband)[levels(dat$new_FSMband)%in%c("35pr+","21pr-35pr","13pr-21pr")] <-  "13-35+pr"
+levels(dat$new_FSMband)[levels(dat$new_FSMband)%in%c("9pr-13pr","5pr-9pr","<5pr")] <-  "<5-13pr"
+
+dat$new_hiquamum <- factor(dat$new_hiquamum , levels=c("Degree/HE", "A-Levels/GCSE", "Other_qualifications", "No_qualification", "missing"))
+dat$new_homework <- factor(dat$new_homework , levels=c("0-2 evenings", "3-5 evenings", "missing"))
+dat$new_attitude <- factor(dat$new_attitude , levels=c("low", "high", "missing"))
+dat$new_FSMband <- factor(dat$new_FSMband , levels=c("<5-13pr", "13-35+pr"))
+
 # Missing could be an indicator, so think about what you what to do
 dat.1 <- subset(dat, is.na(IDACI_n)== F & hiquamum != "missing"
                 & SECshort != "missing" & singlepar != "missing"
@@ -28,7 +52,9 @@ dat.1 <- subset(dat, is.na(IDACI_n)== F & hiquamum != "missing"
                 & homework != "missing" & attitude != "missing"
                 & sen != "missing" & truancy != "missing"
                 & absent != "missing" & exclude != "missing"
-                & FSMband != "NA")
+                & FSMband != "NA" & new_hiquamum != "missing" 
+                & new_homework != "missing" & new_attitude != "missing" 
+                & new_FSMband != "NA")
 
 
 head(dat, 4)
@@ -111,6 +137,10 @@ p1
 p1 <- ggplot(data = dat.1, aes(x=homework, y=ks4score, fill=homework)) + geom_boxplot()
 p1  
 
+
+p1 <- ggplot(data = dat.1, aes(x=new_homework, y=ks4score, fill=new_homework)) + geom_boxplot()
+p1  
+
 # attitude
 p1 <- ggplot(data = dat, aes(x=attitude, y=ks4score, fill=attitude)) + geom_boxplot()
 p1  
@@ -160,6 +190,7 @@ p1
 p1 <- ggplot(data = dat.1, aes(x=FSMband, y=ks4score, fill=FSMband)) + geom_boxplot()
 p1 
 
+
 # fiveac
 p1 <- ggplot(data = dat, aes(x=fiveac, y=ks4score, fill=fiveac)) + geom_boxplot()
 p1  
@@ -180,7 +211,8 @@ p1
 p1 <- ggplot(data = dat, aes(x=k3sc, y=ks4score, fill=factor(k3sc))) + geom_boxplot()
 p1  
 
-p1 <- ggplot(data = dat, aes(x=average_k3_score, y=ks4score, fill=factor(average_k3_score))) + geom_boxplot()
+# average_k3_score
+p1 <- ggplot(data = dat, aes(x=average_k3_score, y=ks4score)) + geom_point()
 p1  
 
 
@@ -265,15 +297,26 @@ hist(rstandard(lm.5), freq = FALSE ,
      main="Histogram of standardised residuals",
      cex.main=0.8, xlab="Standardised residuals")
 
-lm.6 <- lm(ks4score~ . -IDACI_n -gender -SECshort -tuition -fiveem
-           -k3en -k3ma -k3sc -fsm -parasp+ house*computer, data=dat)
+lm.6 <- lm(ks4score~ . -IDACI_n -gender -SECshort -tuition 
+           -k3en -k3ma -k3sc -fsm -parasp+ house*computer+ fiveac*fiveem
+          + new_hiquamum*new_FSMband -hiquamum -attitude -FSMband
+          - homework, data=dat.1)
 display(lm.6)
 summary(lm.6)
 coef(lm.6)
 
+par(mfrow=c(2,2))
+plot(lm.6, which=c(1,2))
+hist(rstandard(lm.6), freq = FALSE ,
+     main="Histogram of standardised residuals",
+     cex.main=0.8, xlab="Standardised residuals")
+
+library(arm)
+Anova(lm.6)
+
 abs(range(dat$ks4score))
 
-lm.test <- lm(ks4score~ FSMband,data=dat)
+lm.test <- lm(ks4score~ new_hiquamum,data=dat)
 display(lm.test)
 
 
