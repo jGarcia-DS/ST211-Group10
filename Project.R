@@ -3,7 +3,9 @@ library(ggplot2)
 
 dat <- read.csv("RWNS_final.csv", header = T)
 
+## Did this after the our intial regression models, had to order the data so the most appropriate baseline was considered
 dat$average_k3_score <- rowMeans(dat[, c("k3en", "k3ma", "k3sc")], na.rm = TRUE)
+
 
 dat$hiquamum <- factor(dat$hiquamum , levels=c("Degree_or_equivalent", "HE_below_degree_level", "GCE_A_Level_or_equivalent"
                                                , "GCSE_grades_A-C_or_equiv", "Other_qualifications", "No_qualification", "missing"))
@@ -42,9 +44,9 @@ levels(dat$new_FSMband)[levels(dat$new_FSMband)%in%c("9pr-13pr","5pr-9pr","<5pr"
 dat$new_hiquamum <- factor(dat$new_hiquamum , levels=c("Degree/HE", "A-Levels/GCSE", "Other_qualifications", "No_qualification", "missing"))
 dat$new_homework <- factor(dat$new_homework , levels=c("0-2 evenings", "3-5 evenings", "missing"))
 dat$new_attitude <- factor(dat$new_attitude , levels=c("low", "high", "missing"))
-dat$new_FSMband <- factor(dat$new_FSMband , levels=c("<5-13pr", "13-35+pr"))
+dat$new_FSMband <- factor(dat$new_FSMband , levels=c("<5-13pr","13-35+pr"))
 
-# Missing could be an indicator, so think about what you what to do
+# The same dataset but with the missing values removed
 dat.1 <- subset(dat, is.na(IDACI_n)== F & hiquamum != "missing"
                 & SECshort != "missing" & singlepar != "missing"
                 & fsm != "missing" & parasp != "missing"
@@ -54,22 +56,21 @@ dat.1 <- subset(dat, is.na(IDACI_n)== F & hiquamum != "missing"
                 & absent != "missing" & exclude != "missing"
                 & FSMband != "NA" & new_hiquamum != "missing" 
                 & new_homework != "missing" & new_attitude != "missing" 
-                & new_FSMband != "NA")
+                & new_FSMband != "NA" & house != "other/DK/Ref")
 
 
 head(dat, 4)
 
 summary(dat)
 
+#### EDA ####
+
 # ks4score
 p1 <- ggplot(data = dat, aes(y=ks4score)) + geom_boxplot()
 p1  
 
-# gender, non significant
+# gender
 p1 <- ggplot(data = dat, aes(x=gender, y=ks4score, fill=gender)) + geom_boxplot()
-p1  
-
-p1 <- ggplot(data = dat.1, aes(x=gender, y=ks4score, fill=gender)) + geom_boxplot()
 p1  
 
 # hiquamum, significant
@@ -190,6 +191,8 @@ p1
 p1 <- ggplot(data = dat.1, aes(x=FSMband, y=ks4score, fill=FSMband)) + geom_boxplot()
 p1 
 
+p1 <- ggplot(data = dat.1, aes(x=new_FSMband, y=ks4score, fill=new_FSMband)) + geom_boxplot()
+p1 
 
 # fiveac
 p1 <- ggplot(data = dat, aes(x=fiveac, y=ks4score, fill=fiveac)) + geom_boxplot()
@@ -216,14 +219,23 @@ p1 <- ggplot(data = dat, aes(x=average_k3_score, y=ks4score)) + geom_point()
 p1  
 
 
-lm <- lm(ks4score~. -average_k3_score, data=dat)
-display(lm)
-summary(lm)
-coef(lm)
+cor(dat$k3sc, dat$k3ma)
+cor(dat$k3ma, dat$k3en)
+cor(dat$k3sc, dat$k3en)
 
+#### LINEAR REGRESSION ####
+
+# Experimenting with a linear model that included all the variables
 lm.0 <- lm(ks4score~ ., data=dat)
 display(lm.0)
 summary(lm.0)
+coef(lm.0)
+
+# First model which included all the initial data, except for the repeated columns we added
+lm <- lm(ks4score~. -average_k3_score -new_FSMband -new_attitude 
+         -new_homework -new_hiquamum, data=dat)
+display(lm)
+summary(lm)
 coef(lm)
 
 par(mfrow=c(2,2))
@@ -232,7 +244,9 @@ hist(rstandard(lm), freq = FALSE ,
      main="Histogram of standardised residuals",
      cex.main=0.8, xlab="Standardised residuals")
 
-lm.1 <- lm(ks4score~ ., data=dat.1)
+# Included all the data but it is a complete case analysis
+lm.1 <- lm(ks4score~. -average_k3_score -new_FSMband -new_attitude 
+           -new_homework -new_hiquamum, data=dat.1)
 display(lm.1, detail = T)
 summary(lm.1)
 coef(lm.1)
@@ -244,9 +258,9 @@ hist(rstandard(lm.1), freq = FALSE ,
      cex.main=0.8, xlab="Standardised residuals")
 
 
-# Removed variables we initially thought are not important
-lm.2 <- lm(ks4score~ . -IDACI_n -gender -tuition -fiveem
-           -k3en -k3ma -k3sc, data=dat)
+# Removed variables we initially thought are not important, based on boxplots and p-values
+lm.2 <- lm(ks4score~ . -IDACI_n -tuition -k3en -k3ma -k3sc -new_FSMband -new_attitude 
+           -new_homework -new_hiquamum , data=dat)
 display(lm.2)
 summary(lm.2)
 coef(lm.2)
@@ -257,8 +271,9 @@ hist(rstandard(lm.2), freq = FALSE ,
      main="Histogram of standardised residuals",
      cex.main=0.8, xlab="Standardised residuals")
 
-lm.3 <- lm(ks4score~ . -IDACI_n -gender -tuition -fiveem
-           -k3en -k3ma -k3sc, data=dat.1)
+# Same thing but complete case analysis
+lm.3 <- lm(ks4score~ . -IDACI_n -tuition -k3en -k3ma -k3sc -new_FSMband -new_attitude 
+           -new_homework -new_hiquamum, data=dat.1)
 display(lm.3)
 summary(lm.3)
 coef(lm.3)
@@ -269,10 +284,11 @@ hist(rstandard(lm.3), freq = FALSE ,
      main="Histogram of standardised residuals",
      cex.main=0.8, xlab="Standardised residuals")
 
-# second model
-lm.4 <- lm(ks4score~ . -IDACI_n -gender -SECshort -tuition -fiveem
-           -k3en -k3ma -k3sc -fsm -parasp
-           -absent, data=dat)
+# Removing some more predictors which are not significant
+lm.4 <- lm(ks4score~ . -IDACI_n -SECshort -tuition
+           -k3en -k3ma -k3sc -fsm -parasp -absent
+           -new_FSMband -new_attitude 
+           -new_homework -new_hiquamum, data=dat)
 display(lm.4)
 summary(lm.4)
 coef(lm.4)
@@ -283,13 +299,16 @@ hist(rstandard(lm.4), freq = FALSE ,
      main="Histogram of standardised residuals",
      cex.main=0.8, xlab="Standardised residuals")
 
-
-# dropping more variables we found to be not significant
-lm.5 <- lm(ks4score~ . -IDACI_n -gender -SECshort -tuition -fiveem
-           -k3en -k3ma -k3sc -fsm -parasp, data=dat.1)
+# dat.1
+lm.5 <- lm(ks4score~ . -IDACI_n -SECshort -tuition
+           -k3en -k3ma -k3sc -fsm -parasp -absent
+           -new_FSMband -new_attitude 
+           -new_homework -new_hiquamum, data=dat.1)
 display(lm.5)
 summary(lm.5)
 coef(lm.5)
+
+Anova(lm.5)
 
 par(mfrow=c(2,2))
 plot(lm.5, which=c(1,2))
@@ -297,12 +316,13 @@ hist(rstandard(lm.5), freq = FALSE ,
      main="Histogram of standardised residuals",
      cex.main=0.8, xlab="Standardised residuals")
 
-lm.6 <- lm(ks4score~ . -IDACI_n -gender -SECshort -tuition 
-           -k3en -k3ma -k3sc -fsm -parasp+ house*computer+ fiveac*fiveem
-          + new_hiquamum*new_FSMband -hiquamum -attitude -FSMband
+lm.6 <- lm(ks4score~ . -IDACI_n -SECshort -tuition 
+          -k3en -k3ma -k3sc -fsm -parasp -absent + house*computer
+          +new_hiquamum*new_FSMband -hiquamum -attitude -FSMband
           - homework, data=dat.1)
 display(lm.6)
 summary(lm.6)
+
 coef(lm.6)
 
 par(mfrow=c(2,2))
@@ -311,12 +331,6 @@ hist(rstandard(lm.6), freq = FALSE ,
      main="Histogram of standardised residuals",
      cex.main=0.8, xlab="Standardised residuals")
 
-library(arm)
 Anova(lm.6)
-
-abs(range(dat$ks4score))
-
-lm.test <- lm(ks4score~ new_hiquamum,data=dat)
-display(lm.test)
 
 
