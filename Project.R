@@ -23,7 +23,7 @@ dat$absent <- factor(dat$absent , levels=c("No", "Yes", "missing"))
 dat$exclude <- factor(dat$exclude , levels=c("No", "Yes", "missing"))
 
 
-# Added this after doing regressions because wanted to reduce the number of coefficients in the final model
+# Added because wanted to reduce the number of coefficients in the final model
 dat$new_hiquamum <- dat$hiquamum
 dat$new_homework <- factor(dat$homework)
 dat$new_attitude <- dat$attitude
@@ -259,7 +259,7 @@ hist(rstandard(lm.1), freq = FALSE ,
 
 
 # Removed variables we initially thought are not important, based on boxplots and p-values
-lm.2 <- lm(ks4score~ . -IDACI_n -tuition -k3en -k3ma -k3sc -new_FSMband -new_attitude 
+lm.2 <- lm(ks4score~ . -IDACI_n -tuition -k3en -k3ma -k3sc-new_FSMband -new_attitude 
            -new_homework -new_hiquamum , data=dat)
 display(lm.2)
 summary(lm.2)
@@ -283,6 +283,8 @@ plot(lm.3, which=c(1,2))
 hist(rstandard(lm.3), freq = FALSE ,
      main="Histogram of standardised residuals",
      cex.main=0.8, xlab="Standardised residuals")
+
+Anova(lm.3)
 
 # Removing some more predictors which are not significant
 lm.4 <- lm(ks4score~ . -IDACI_n -SECshort -tuition
@@ -333,4 +335,6 @@ hist(rstandard(lm.6), freq = FALSE ,
 
 Anova(lm.6)
 
-
+# Possible Outliers
+lm.7 <- lm(ks4score~ +new_FSMband, data=dat.1)
+summary(lm.7)
