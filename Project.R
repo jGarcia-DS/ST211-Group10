@@ -3,7 +3,6 @@ library(ggplot2)
 
 dat <- read.csv("RWNS_final.csv", header = T)
 
-## Did this after the our intial regression models, had to order the data so the most appropriate baseline was considered
 dat$average_k3_score <- rowMeans(dat[, c("k3en", "k3ma", "k3sc")], na.rm = TRUE)
 
 
@@ -333,8 +332,8 @@ hist(rstandard(lm.6), freq = FALSE ,
      main="Histogram of standardised residuals",
      cex.main=0.8, xlab="Standardised residuals")
 
-Anova(lm.6)
+  Anova(lm.6)
 
-# Possible Outliers
+# Investigating new_FSMband
 lm.7 <- lm(ks4score~ +new_FSMband, data=dat.1)
 summary(lm.7)
