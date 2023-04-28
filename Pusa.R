@@ -37,7 +37,6 @@ p2 <- ggplot(special.dat, aes(x = factor(value), y = W8PUSA)) + geom_point(size 
 p2 <- p2 + theme_bw() + scale_fill_grey() + theme(legend.position = "none")
 p2
 
-
 proportion <- sum(is.na(dat.pusa$W1GrssyrMP)) / length(dat.pusa$W1GrssyrMP)
 proportion
 
@@ -190,7 +189,9 @@ dat.pusa$W6OwnchiDV <- with(dat.pusa, Recode(W6OwnchiDV, "c(1) = 'Yes'"))
 dat.pusa$W6OwnchiDV <- with(dat.pusa, Recode(W6OwnchiDV, "c(2) = 'No'"))
 dat.pusa$W6OwnchiDV<-relevel(dat.pusa$W6OwnchiDV,ref="No")
 
-# W8DDEGP
+dat.pusa$W8DDEGP <- with(dat.pusa, Recode(W8DDEGP, "c(0) = 'NoDegree'"))
+dat.pusa$W8DDEGP <- with(dat.pusa, Recode(W8DDEGP, "c(1) = 'Degree'"))
+dat.pusa$W8DDEGP<-relevel(dat.pusa$W8DDEGP,ref="Degree")
 
 dat.pusa$W8DMARSTAT <- with(dat.pusa, Recode(W8DMARSTAT, "c(1) = 'Single'"))
 dat.pusa$W8DMARSTAT <- with(dat.pusa, Recode(W8DMARSTAT, "c(2) = 'Married'"))
@@ -220,55 +221,19 @@ dat.pusa$W8QMAFI <- with(dat.pusa, Recode(W8QMAFI, "c(4,5) = 'BelowAverage'"))
 dat.pusa$W8QMAFI<-relevel(dat.pusa$W8QMAFI,ref="AboveAverage")
 
 
-pusa.lm <- lm(W8PUSA~ W1yschat1 + W1wrk1aMP + W1condur5MP + W1hea2MP + W1NoldBroHS
+pusa.lm <- lm(W8PUSA~ W1yschat1 + W1condur5MP + W1hea2MP 
               + W1InCarHH + W1hous12HH + W1usevcHH + W1hiqualmum + W1wrkfulldad + W1wrkfullmum 
               + W1ch0_2HH + W1ch3_11HH + W1ch12_15HH + W1ch16_17HH + W1IndSchool + W1marstatmum  
               + W1nssecfam + W1ethgrpYP + W1heposs9YP + W1hwndayYP + W1truantYP + W1alceverYP + W1bulrc
-              + W1disabYP + W2ghq12scr + W2disc1YP + W2depressYP + W6JobYP + W6UnivYP + W6acqno
-              + W6gcse + W6OwnchiDV + W6DebtattYP + W8DDEGP + W8DGHQSC + W8DMARSTAT + W8DACTIVITYC
-              + W8CMSEX + W8TENURE + W8QMAFI + W8GROW
+              + W1disabYP + W2ghq12scr + W2disc1YP + W2depressYP + W6JobYP + W6UnivYP
+              + W6gcse + W6als + W6OwnchiDV + W6DebtattYP + W8DDEGP + W8DGHQSC 
+              + W8DMARSTAT + W8DWRK + W8CMSEX + W8TENURE + W8QMAFI + W8GROW 
               , data = dat.pusa)
 
 summary(pusa.lm)
 vif(pusa.lm)
 
-par(mfrow=c(2,2))
-plot(pusa.lm, which=c(1,2))
-
-hist(rstandard(pusa.lm), freq = FALSE ,
-     main="Histogram of standardised residuals",
-     cex.main=0.8, xlab="Standardised residuals")
-
-pusa.lm <- lm(log(W8PUSA)~ W1yschat1 + W1wrk1aMP + W1condur5MP + W1hea2MP + W1NoldBroHS
-              + W1InCarHH + W1hous12HH + W1usevcHH + W1hiqualmum + W1wrkfulldad + W1wrkfullmum 
-              + W1ch0_2HH + W1ch3_11HH + W1ch12_15HH + W1ch16_17HH + W1IndSchool + W1marstatmum  
-              + W1nssecfam + W1ethgrpYP + W1heposs9YP + W1hwndayYP + W1truantYP + W1alceverYP + W1bulrc
-              + W1disabYP + W2ghq12scr + W2disc1YP + W2depressYP + W6JobYP + W6UnivYP + W6acqno
-              + W6gcse + W6OwnchiDV + W6DebtattYP + W8DDEGP + W8DGHQSC + W8DMARSTAT + W8DACTIVITYC
-              + W8CMSEX + W8TENURE + W8QMAFI + W8GROW
-              , data = dat.pusa)
-
-summary(pusa.lm)
-
-par(mfrow=c(2,2))
-plot(pusa.lm, which=c(1,2))
-
-hist(rstandard(pusa.lm), freq = FALSE ,
-     main="Histogram of standardised residuals",
-     cex.main=0.8, xlab="Standardised residuals")
-
 # Alias predictors 
-
-# for W6acqno W6gcse W6als
-summary(lm(W8PUSA ~ W6acqno    
-           , data = dat.pusa))
-
-summary(lm(W8PUSA ~ W6gcse   
-           , data = dat.pusa))
-
-summary(lm(W8PUSA ~ W6als   
-           , data = dat.pusa))
-
 # W8DWRK and W8DACTIVITYC
 summary(lm(W8PUSA ~ W8DWRK   
            , data = dat.pusa))
@@ -276,6 +241,30 @@ summary(lm(W8PUSA ~ W8DWRK
 summary(lm(W8PUSA ~ W8DACTIVITYC   
            , data = dat.pusa))
 
+par(mfrow=c(2,2))
+plot(pusa.lm, which=c(1,2))
+
+hist(rstandard(pusa.lm), freq = FALSE ,
+     main="Histogram of standardised residuals",
+     cex.main=0.8, xlab="Standardised residuals")
+
+pusa.lm <- lm(log(W8PUSA)~ W1yschat1 + W1condur5MP + W1hea2MP 
+              + W1InCarHH + W1hous12HH + W1usevcHH + W1hiqualmum + W1wrkfulldad + W1wrkfullmum 
+              + W1ch0_2HH + W1ch3_11HH + W1ch12_15HH + W1ch16_17HH + W1IndSchool + W1marstatmum  
+              + W1nssecfam + W1ethgrpYP + W1heposs9YP + W1hwndayYP + W1truantYP + W1alceverYP + W1bulrc
+              + W1disabYP + W2ghq12scr + W2disc1YP + W2depressYP + W6JobYP + W6UnivYP
+              + W6gcse + W6als + W6OwnchiDV + W6DebtattYP + W8DDEGP + W8DGHQSC 
+              + W8DMARSTAT + W8DWRK + W8CMSEX + W8TENURE + W8QMAFI + W8GROW 
+              , data = dat.pusa)
+
+summary(pusa.lm)
+
+par(mfrow=c(2,2))
+plot(pusa.lm, which=c(1,2))
+
+hist(rstandard(pusa.lm), freq = FALSE ,
+     main="Histogram of standardised residuals",
+     cex.main=0.8, xlab="Standardised residuals")
 
 
 show_outliers <- function(the.linear.model, topN) { # length of data
@@ -327,18 +316,17 @@ dat.pusa[outliers.3,]
 all.outliers <- union(union(outliers.1, outliers.2), outliers.3)
 dat.pusa[all.outliers,]
 
+# Comparing the regression models
 no.outlier.dat <-dat.pusa[-all.outliers,]
 
-no.outlier.dat.lm <- lm(log(W8PUSA)~ W1yschat1 + W1wrk1aMP + W1condur5MP + W1hea2MP + W1NoldBroHS
+no.outlier.dat.lm <- lm(log(W8PUSA)~ W1yschat1 + W1condur5MP + W1hea2MP 
                         + W1InCarHH + W1hous12HH + W1usevcHH + W1hiqualmum + W1wrkfulldad + W1wrkfullmum 
                         + W1ch0_2HH + W1ch3_11HH + W1ch12_15HH + W1ch16_17HH + W1IndSchool + W1marstatmum  
                         + W1nssecfam + W1ethgrpYP + W1heposs9YP + W1hwndayYP + W1truantYP + W1alceverYP + W1bulrc
-                        + W1disabYP + W2ghq12scr + W2disc1YP + W2depressYP + W6JobYP + W6UnivYP + W6acqno
-                        + W6gcse + W6OwnchiDV + W6DebtattYP + W8DDEGP + W8DGHQSC + W8DMARSTAT + W8DACTIVITYC
-                        + W8CMSEX + W8TENURE + W8QMAFI + W8GROW, data = no.outlier.dat)
-vif(no.outlier.dat.lm)
+                        + W1disabYP + W2ghq12scr + W2disc1YP + W2depressYP + W6JobYP + W6UnivYP
+                        + W6gcse + W6als + W6OwnchiDV + W6DebtattYP + W8DDEGP + W8DGHQSC 
+                        + W8DMARSTAT + W8DWRK + W8CMSEX + W8TENURE + W8QMAFI + W8GROW, data = no.outlier.dat)
 
-display(no.outlier.dat.lm)
 summary(no.outlier.dat.lm)
 
 par(mfrow=c(2,2))
@@ -349,59 +337,9 @@ hist(rstandard(no.outlier.dat.lm), freq = FALSE ,
      cex.main=0.8, xlab="Standardised residuals")
 
 
-# # No extreme values
-# no.extreme.dat <- subset(dat.pusa, W8PUSA < 40000) 
-# #no.extreme.dat <- no.extreme.value.dat[-all.outliers,]
-# no.extreme.lm <- lm(log(W8PUSA)~ W1yschat1 + W1wrk1aMP + W1condur5MP + W1hea2MP + W1NoldBroHS
-#                     + W1InCarHH + W1hous12HH + W1usevcHH + W1hiqualmum + W1wrkfulldad + W1wrkfullmum 
-#                     + W1ch0_2HH + W1ch3_11HH + W1ch12_15HH + W1ch16_17HH + W1IndSchool + W1marstatmum  
-#                     + W1nssecfam + W1ethgrpYP + W1heposs9YP + W1hwndayYP + W1truantYP + W1alceverYP + W1bulrc
-#                     + W1disabYP + W2ghq12scr + W2disc1YP + W2depressYP + W6JobYP + W6UnivYP + W6acqno
-#                     + W6gcse + W6OwnchiDV + W6DebtattYP + W8DDEGP + W8DGHQSC + W8DMARSTAT + W8DACTIVITYC
-#                     + W8CMSEX + W8TENURE + W8QMAFI + W8GROW , data = no.extreme.dat)
-# 
-# display(no.extreme.lm)
-# summary(no.extreme.lm)
-# 
-# par(mfrow=c(2,2))
-# 
-# plot(no.extreme.lm, which=c(1,2))
-# hist(rstandard(no.extreme.lm), freq = FALSE ,
-#      main="Histogram of standardised residuals",
-#      cex.main=0.8, xlab="Standardised residuals")
-# 
-# 
-# 
-# ## Investigating weird points, probably because they are poor, so check without poor spouses
-# dat.pusa[c(11,12,13),]
-# 
-# 
-# no.extreme.dat <- subset(dat.pusa, 10 < W8PUSA) 
-# #no.extreme.dat <- no.extreme.value.dat[-all.outliers,]
-# no.extreme.lm <- lm(log(W8PUSA)~ W1yschat1 + W1wrk1aMP + W1condur5MP + W1hea2MP + W1NoldBroHS
-#                     + W1InCarHH + W1hous12HH + W1usevcHH + W1hiqualmum + W1wrkfulldad + W1wrkfullmum 
-#                     + W1ch0_2HH + W1ch3_11HH + W1ch12_15HH + W1ch16_17HH + W1IndSchool + W1marstatmum  
-#                     + W1nssecfam + W1ethgrpYP + W1heposs9YP + W1hwndayYP + W1truantYP + W1alceverYP + W1bulrc
-#                     + W1disabYP + W2ghq12scr + W2disc1YP + W2depressYP + W6JobYP + W6UnivYP + W6acqno
-#                     + W6gcse + W6OwnchiDV + W6DebtattYP + W8DDEGP + W8DGHQSC + W8DMARSTAT + W8DACTIVITYC
-#                     + W8CMSEX + W8TENURE + W8QMAFI + W8GROW , data = no.extreme.dat)
-# 
-# display(no.extreme.lm)
-# summary(no.extreme.lm)
-# 
-# par(mfrow=c(2,2))
-# 
-# plot(no.extreme.lm, which=c(1,2))
-# hist(rstandard(no.extreme.lm), freq = FALSE ,
-#      main="Histogram of standardised residuals",
-#      cex.main=0.8, xlab="Standardised residuals")
-# 
-
-
 # proceed with original as there is no reason to justify removing outliers
-
-
-pusa.lm <- lm(log(W8PUSA)~ W1NoldBroHS  + W1ch12_15HH + W8DDEGP + W8DGHQSC + W8QMAFI 
+# removed all the non significant predictors at the 5% level
+pusa.lm <- lm(log(W8PUSA)~ W1ch12_15HH + W8DDEGP + W8DGHQSC + W8QMAFI 
               , data = dat.pusa)
 
 summary(pusa.lm)
@@ -415,33 +353,65 @@ hist(rstandard(pusa.lm), freq = FALSE ,
 
 Anova(pusa.lm)
 
+# Removing W8DGHQSC because no longer significant with a larger sample size
+pusa.lm <- lm(log(W8PUSA)~ W1ch12_15HH + W8DDEGP + W8QMAFI 
+              , data = dat.pusa)
+
+summary(pusa.lm)
+
+par(mfrow=c(2,2))
+plot(pusa.lm, which=c(1,2))
+
+hist(rstandard(pusa.lm), freq = FALSE ,
+     main="Histogram of standardised residuals",
+     cex.main=0.8, xlab="Standardised residuals")
+
+Anova(pusa.lm)
+
+# Adding originally removed predictors back to see if there is a change
+pusa.lm <- lm(log(W8PUSA)~ W1ch12_15HH + W8DDEGP + W8QMAFI + W1famtyp2 + W6EducYP 
+              + W6Apprent1YP + W1wrk1aMP + W6acqno + W1NoldBroHS + W8DACTIVITYC
+              , data = dat.pusa)
+
+vif(pusa.lm)
+
+summary(pusa.lm)
+
+# Keeping W1wrk1aMP because significant
+pusa.lm <- lm(log(W8PUSA)~ W1ch12_15HH + W8DDEGP + W8QMAFI + W1wrk1aMP 
+              , data = dat.pusa)
+
+vif(pusa.lm)
+
+summary(pusa.lm)
+
+Anova(pusa.lm)
+
+
 # Trying out interactions
-pusa.lm <- lm(log(W8PUSA)~ W1NoldBroHS*W1ch12_15HH + W8DDEGP + W8DGHQSC + W8QMAFI 
+pusa.lm <- lm(log(W8PUSA)~ W1ch12_15HH + W8DDEGP*W8QMAFI + W1wrk1aMP 
               , data = dat.pusa)
 
 summary(pusa.lm)
 
-pusa.lm <- lm(log(W8PUSA)~ W1NoldBroHS + W1ch12_15HH + W8DDEGP*W8QMAFI + W8DGHQSC 
+pusa.lm <- lm(log(W8PUSA)~ W1ch12_15HH*W8DDEGP + W8QMAFI + W1wrk1aMP 
               , data = dat.pusa)
 
 summary(pusa.lm)
 
-pusa.lm <- lm(log(W8PUSA)~ W1NoldBroHS*W8DDEGP + W1ch12_15HH  + W8QMAFI + W8DGHQSC 
+pusa.lm <- lm(log(W8PUSA)~ W1ch12_15HH*W8DDEGP + W8QMAFI + W1wrk1aMP*W1ch12_15HH
               , data = dat.pusa)
 
 summary(pusa.lm)
 
-pusa.lm <- lm(log(W8PUSA)~ W1NoldBroHS*W8DGHQSC + W8QMAFI*W1ch12_15HH + W8DDEGP 
-              , data = dat.pusa)
-
-summary(pusa.lm)
 
 # Final Model
-pusa.lm <- lm(log(W8PUSA)~ W1NoldBroHS*W8DDEGP + W1ch12_15HH + W8QMAFI + W8DGHQSC 
+pusa.lm <- lm(log(W8PUSA)~ W1ch12_15HH*W8DDEGP + W8QMAFI + W1wrk1aMP 
               , data = dat.pusa)
 
-
 summary(pusa.lm)
+
+Anova(pusa.lm)
 
 par(mfrow=c(2,2))
 plot(pusa.lm, which=c(1,2))
@@ -465,11 +435,9 @@ cols <- c(3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,29
           32,33,34,35,36,37,38,40,43,44,45,46,47,48)
 dat.pusa[cols] <- lapply(dat.pusa[cols], factor)
 
-dat.pusa$W1NoldBroHS <- with(dat.pusa, Recode(W1NoldBroHS, "c(0) = 0"))
-dat.pusa$W1NoldBroHS <- with(dat.pusa, Recode(W1NoldBroHS, "c(1) = 1"))
-dat.pusa$W1NoldBroHS <- with(dat.pusa, Recode(W1NoldBroHS, "c(2) = 2"))
-dat.pusa$W1NoldBroHS <- with(dat.pusa, Recode(W1NoldBroHS, "c(3,4,5,6,7,8,9) = '>3'"))
-dat.pusa$W1NoldBroHS<-relevel(dat.pusa$W1NoldBroHS,ref='0')
+dat.pusa$W8DDEGP <- with(dat.pusa, Recode(W8DDEGP, "c(0) = 'NoDegree'"))
+dat.pusa$W8DDEGP <- with(dat.pusa, Recode(W8DDEGP, "c(1) = 'Degree'"))
+dat.pusa$W8DDEGP<-relevel(dat.pusa$W8DDEGP,ref="Degree")
 
 dat.pusa$W1ch12_15HH <- with(dat.pusa, Recode(W1ch12_15HH, "c(0,1) = '0-1'"))
 dat.pusa$W1ch12_15HH <- with(dat.pusa, Recode(W1ch12_15HH, "c(2,3,4) = '>1'"))
@@ -480,7 +448,13 @@ dat.pusa$W8QMAFI <- with(dat.pusa, Recode(W8QMAFI, "c(3) = 'Average'"))
 dat.pusa$W8QMAFI <- with(dat.pusa, Recode(W8QMAFI, "c(4,5) = 'BelowAverage'"))
 dat.pusa$W8QMAFI<-relevel(dat.pusa$W8QMAFI,ref="AboveAverage")
 
-pusa.lm <- lm(log(W8PUSA)~ W1NoldBroHS*W8DDEGP + W1ch12_15HH + W8QMAFI + W8DGHQSC 
+dat.pusa$W1wrk1aMP <- with(dat.pusa, Recode(W1wrk1aMP, "c(1,3) = 'FullTime'"))
+dat.pusa$W1wrk1aMP <- with(dat.pusa, Recode(W1wrk1aMP, "c(2,4) = 'PartTime'"))
+dat.pusa$W1wrk1aMP <- with(dat.pusa, Recode(W1wrk1aMP,"c(10) = 'LookingAfterFamily'"))
+dat.pusa$W1wrk1aMP <- with(dat.pusa, Recode(W1wrk1aMP,"c(5,6,7,8,9,11,12) = 'Other'"))
+dat.pusa$W1wrk1aMP<-relevel(dat.pusa$W1wrk1aMP,ref="FullTime")
+
+pusa.lm <- lm(log(W8PUSA)~ W1ch12_15HH*W8DDEGP + W8QMAFI + W1wrk1aMP 
               , data = dat.pusa)
 
 summary(pusa.lm)
@@ -504,11 +478,9 @@ cols <- c(3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,29
 dat.pusa[cols] <- lapply(dat.pusa[cols], factor)
 dat.pusa$W8PUSA[dat.pusa$W8PUSA==0]<- 0.05
 
-dat.pusa$W1NoldBroHS <- with(dat.pusa, Recode(W1NoldBroHS, "c(0) = 0"))
-dat.pusa$W1NoldBroHS <- with(dat.pusa, Recode(W1NoldBroHS, "c(1) = 1"))
-dat.pusa$W1NoldBroHS <- with(dat.pusa, Recode(W1NoldBroHS, "c(2) = 2"))
-dat.pusa$W1NoldBroHS <- with(dat.pusa, Recode(W1NoldBroHS, "c(3,4,5,6,7,8,9) = '>3'"))
-dat.pusa$W1NoldBroHS<-relevel(dat.pusa$W1NoldBroHS,ref='0')
+dat.pusa$W8DDEGP <- with(dat.pusa, Recode(W8DDEGP, "c(0) = 'NoDegree'"))
+dat.pusa$W8DDEGP <- with(dat.pusa, Recode(W8DDEGP, "c(1) = 'Degree'"))
+dat.pusa$W8DDEGP<-relevel(dat.pusa$W8DDEGP,ref="Degree")
 
 dat.pusa$W1ch12_15HH <- with(dat.pusa, Recode(W1ch12_15HH, "c(0,1) = '0-1'"))
 dat.pusa$W1ch12_15HH <- with(dat.pusa, Recode(W1ch12_15HH, "c(2,3,4) = '>1'"))
@@ -518,7 +490,13 @@ dat.pusa$W8QMAFI <- with(dat.pusa, Recode(W8QMAFI, "c(1,2) = 'AboveAverage'"))
 dat.pusa$W8QMAFI <- with(dat.pusa, Recode(W8QMAFI, "c(3) = 'Average'"))
 dat.pusa$W8QMAFI <- with(dat.pusa, Recode(W8QMAFI, "c(4,5) = 'Below'"))
 
-pusa.lm <- lm(log(W8PUSA)~ W1NoldBroHS*W8DDEGP + W1ch12_15HH + W8QMAFI + W8DGHQSC 
+dat.pusa$W1wrk1aMP <- with(dat.pusa, Recode(W1wrk1aMP, "c(1,3) = 'FullTime'"))
+dat.pusa$W1wrk1aMP <- with(dat.pusa, Recode(W1wrk1aMP, "c(2,4) = 'PartTime'"))
+dat.pusa$W1wrk1aMP <- with(dat.pusa, Recode(W1wrk1aMP,"c(10) = 'LookingAfterFamily'"))
+dat.pusa$W1wrk1aMP <- with(dat.pusa, Recode(W1wrk1aMP,"c(5,6,7,8,9,11,12) = 'Other'"))
+dat.pusa$W1wrk1aMP<-relevel(dat.pusa$W1wrk1aMP,ref="FullTime")
+
+pusa.lm <- lm(log(W8PUSA)~ W1ch12_15HH*W8DDEGP + W8QMAFI + W1wrk1aMP 
               , data = dat.pusa)
 
 summary(pusa.lm)
@@ -529,9 +507,6 @@ plot(pusa.lm, which=c(1,2))
 hist(rstandard(pusa.lm), freq = FALSE ,
      main="Histogram of standardised residuals",
      cex.main=0.8, xlab="Standardised residuals")
-
-# Maybe add back aliases in the final model just to see if there is still a change
-
 
 
 # Cross Validation for different splits
@@ -544,11 +519,9 @@ dat.pusa[dat.pusa <= -1] <- NA
 cols <- c(3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,29,30,31,
           32,33,34,35,36,37,38,40,43,44,45,46,47,48)
 dat.pusa[cols] <- lapply(dat.pusa[cols], factor)
-dat.pusa$W1NoldBroHS <- with(dat.pusa, Recode(W1NoldBroHS, "c(0) = 0"))
-dat.pusa$W1NoldBroHS <- with(dat.pusa, Recode(W1NoldBroHS, "c(1) = 1"))
-dat.pusa$W1NoldBroHS <- with(dat.pusa, Recode(W1NoldBroHS, "c(2) = 2"))
-dat.pusa$W1NoldBroHS <- with(dat.pusa, Recode(W1NoldBroHS, "c(3,4,5,6,7,8,9) = '>3'"))
-dat.pusa$W1NoldBroHS<-relevel(dat.pusa$W1NoldBroHS,ref='0')
+dat.pusa$W8DDEGP <- with(dat.pusa, Recode(W8DDEGP, "c(0) = 'NoDegree'"))
+dat.pusa$W8DDEGP <- with(dat.pusa, Recode(W8DDEGP, "c(1) = 'Degree'"))
+dat.pusa$W8DDEGP<-relevel(dat.pusa$W8DDEGP,ref="Degree")
 
 dat.pusa$W1ch12_15HH <- with(dat.pusa, Recode(W1ch12_15HH, "c(0,1) = '0-1'"))
 dat.pusa$W1ch12_15HH <- with(dat.pusa, Recode(W1ch12_15HH, "c(2,3,4) = '>1'"))
@@ -558,7 +531,11 @@ dat.pusa$W8QMAFI <- with(dat.pusa, Recode(W8QMAFI, "c(1,2) = 'AboveAverage'"))
 dat.pusa$W8QMAFI <- with(dat.pusa, Recode(W8QMAFI, "c(3) = 'Average'"))
 dat.pusa$W8QMAFI <- with(dat.pusa, Recode(W8QMAFI, "c(4,5) = 'Below'"))
 
-
+dat.pusa$W1wrk1aMP <- with(dat.pusa, Recode(W1wrk1aMP, "c(1,3) = 'FullTime'"))
+dat.pusa$W1wrk1aMP <- with(dat.pusa, Recode(W1wrk1aMP, "c(2,4) = 'PartTime'"))
+dat.pusa$W1wrk1aMP <- with(dat.pusa, Recode(W1wrk1aMP,"c(10) = 'LookingAfterFamily'"))
+dat.pusa$W1wrk1aMP <- with(dat.pusa, Recode(W1wrk1aMP,"c(5,6,7,8,9,11,12) = 'Other'"))
+dat.pusa$W1wrk1aMP<-relevel(dat.pusa$W1wrk1aMP,ref="FullTime")
 
 for(i in 1:3){
   #create training/test sets
@@ -566,8 +543,8 @@ for(i in 1:3){
   training.set<-dat.pusa[cross.val,] #the 50/70/90% to fit the model
   test.set<-dat.pusa[-cross.val,] # the 50/30/10% to use as validation sample
   #fit the model
-  cv.pusa.lm<- pusa.lm <- lm(log(W8PUSA)~ W1NoldBroHS*W8DDEGP  + W1ch12_15HH + W8QMAFI + W8DGHQSC 
-                           , data = dat.pusa)
+  cv.pusa.lm<- pusa.lm <- lm(log(W8PUSA)~ W1ch12_15HH*W8DDEGP + W8QMAFI + W1wrk1aMP 
+                             , data = dat.pusa)
   
   #create data frame to use in plots
   pred.val.set<-data.frame(predicted=predict(cv.pusa.lm,test.set), 
@@ -618,7 +595,138 @@ for(i in 1:3){
   training.set<-dat.pusa[cross.val,] #the 50/70/90% to fit the model
   test.set<-dat.pusa[-cross.val,] # the 50/30/10% to use as validation sample
   #fit the model
-  pusa.lm <- lm(log(W8PUSA)~ W1NoldBroHS*W8DDEGP + W1ch12_15HH + W8QMAFI + W8DGHQSC 
+  pusa.lm <- lm(log(W8PUSA)~ W1ch12_15HH*W8DDEGP + W8QMAFI + W1wrk1aMP 
+                , data = dat.pusa)
+  #create data frame to use in plots
+  pred.val.set<-data.frame(predicted=predict(pusa.lm,test.set), 
+                           #predicted vs original
+                           original=test.set$W8PUSA,error=(predict(pusa.lm,test.set)-test.set$W8PUSa))
+  #first iteration
+  if(i==1){
+    p1<-ggplot(data=pred.val.set, aes(x=predicted,y=original))+geom_point()+theme_bw()
+    #regress one on the other to see "fit"
+    p1<-p1+geom_smooth(method="lm", se=FALSE) 
+    #the ideal would be for the lm to fit the diagonal
+    p1<-p1+geom_abline(slope=1,intercept=0, linetype="dashed")
+    #predicted vs error
+    p2<-ggplot(data=pred.val.set, aes(x=predicted,y=error))+geom_point()+theme_bw()
+  }else{
+    #points for the second iteration  
+    if(i==2){
+      
+      #points on LHS plot
+      p1<-p1+geom_point(data=pred.val.set, aes(x=predicted,y=original), color="red")
+      #regress one on the other to see "fit"
+      p1<-p1+geom_smooth(method="lm", se=FALSE, color="darkred") 
+      
+      #points on RHS plot
+      p2<-p2+geom_point(data=pred.val.set, aes(x=predicted,y=error), color="red")
+    }else{
+      #points for the third iteration
+      #points on LHS plot
+      p1<-p1+geom_point(data=pred.val.set, aes(x=predicted,y=original), color="green")
+      #regress one on the other to see "fit"
+      p1<-p1+geom_smooth(method="lm", se=FALSE, color="darkgreen") 
+      
+      #points on RHS plot
+      p2<-p2+geom_point(data=pred.val.set, aes(x=predicted,y=error), color="green")
+      #lines at 0 and +/- one std deviation of error
+      p2<-p2+geom_abline(slope=0,intercept=sd(pred.val.set$error), linetype="dashed")
+      p2<-p2+geom_abline(slope=0,intercept=0)
+      p2<-p2+geom_abline(slope=0,intercept=-sd(pred.val.set$error), linetype="dashed")
+    }}}
+grid.arrange(p1,p2,nrow=1)
+
+
+# Cross validation with rich people removed
+
+dat.pusa <- read.csv("EOTST2112023_PUSA.csv", header = TRUE)
+dat.pusa <- dat.pusa[, -1]
+dat.pusa <- subset(dat.pusa, W8PUSA >= 0 & W8PUSA < 35000) 
+dat.pusa$W8PUSA[dat.pusa$W8PUSA==0]<- 0.05
+rownames(dat.pusa) <- 1:nrow(dat.pusa)
+dat.pusa[dat.pusa <= -1] <- NA
+cols <- c(3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,29,30,31,
+          32,33,34,35,36,37,38,40,43,44,45,46,47,48)
+
+dat.pusa[cols] <- lapply(dat.pusa[cols], factor)
+dat.pusa$W8DDEGP <- with(dat.pusa, Recode(W8DDEGP, "c(0) = 'NoDegree'"))
+dat.pusa$W8DDEGP <- with(dat.pusa, Recode(W8DDEGP, "c(1) = 'Degree'"))
+dat.pusa$W8DDEGP<-relevel(dat.pusa$W8DDEGP,ref="Degree")
+
+dat.pusa$W1ch12_15HH <- with(dat.pusa, Recode(W1ch12_15HH, "c(0,1) = '0-1'"))
+dat.pusa$W1ch12_15HH <- with(dat.pusa, Recode(W1ch12_15HH, "c(2,3,4) = '>1'"))
+dat.pusa$W1ch12_15HH<-relevel(dat.pusa$W1ch12_15HH,ref='0-1')
+
+dat.pusa$W8QMAFI <- with(dat.pusa, Recode(W8QMAFI, "c(1,2) = 'AboveAverage'"))
+dat.pusa$W8QMAFI <- with(dat.pusa, Recode(W8QMAFI, "c(3) = 'Average'"))
+dat.pusa$W8QMAFI <- with(dat.pusa, Recode(W8QMAFI, "c(4,5) = 'Below'"))
+
+dat.pusa$W1wrk1aMP <- with(dat.pusa, Recode(W1wrk1aMP, "c(1,3) = 'FullTime'"))
+dat.pusa$W1wrk1aMP <- with(dat.pusa, Recode(W1wrk1aMP, "c(2,4) = 'PartTime'"))
+dat.pusa$W1wrk1aMP <- with(dat.pusa, Recode(W1wrk1aMP,"c(10) = 'LookingAfterFamily'"))
+dat.pusa$W1wrk1aMP <- with(dat.pusa, Recode(W1wrk1aMP,"c(5,6,7,8,9,11,12) = 'Other'"))
+dat.pusa$W1wrk1aMP<-relevel(dat.pusa$W1wrk1aMP,ref="FullTime")
+
+for(i in 1:3){
+  #create training/test sets
+  cross.val<-sample(1:nrow(dat.pusa),split.proportions[i]*nrow(dat.pusa) , replace=FALSE)
+  training.set<-dat.pusa[cross.val,] #the 50/70/90% to fit the model
+  test.set<-dat.pusa[-cross.val,] # the 50/30/10% to use as validation sample
+  #fit the model
+  cv.pusa.lm<- pusa.lm <- lm(log(W8PUSA)~ W1ch12_15HH*W8DDEGP + W8QMAFI + W1wrk1aMP 
+                             , data = dat.pusa)
+  
+  #create data frame to use in plots
+  pred.val.set<-data.frame(predicted=predict(cv.pusa.lm,test.set), 
+                           #predicted vs original
+                           original=test.set$W8PUSA,error=(predict(cv.pusa.lm,test.set)-test.set$W8PUSA))
+  #first iteration
+  if(i==1){
+    p1<-ggplot(data=pred.val.set, aes(x=predicted,y=original))+geom_point()+theme_bw()
+    #regress one on the other to see "fit"
+    p1<-p1+geom_smooth(method="lm", se=FALSE) 
+    #the ideal would be for the lm to fit the diagonal
+    p1<-p1+geom_abline(slope=1,intercept=0, linetype="dashed")
+    #predicted vs error
+    p2<-ggplot(data=pred.val.set, aes(x=predicted,y=error))+geom_point()+theme_bw()
+  }else{
+    #points for the second iteration  
+    if(i==2){
+      
+      #points on LHS plot
+      p1<-p1+geom_point(data=pred.val.set, aes(x=predicted,y=original), color="red")
+      #regress one on the other to see "fit"
+      p1<-p1+geom_smooth(method="lm", se=FALSE, color="darkred") 
+      
+      #points on RHS plot
+      p2<-p2+geom_point(data=pred.val.set, aes(x=predicted,y=error), color="red")
+    }else{
+      #points for the third iteration
+      #points on LHS plot
+      p1<-p1+geom_point(data=pred.val.set, aes(x=predicted,y=original), color="green")
+      #regress one on the other to see "fit"
+      p1<-p1+geom_smooth(method="lm", se=FALSE, color="darkgreen") 
+      
+      #points on RHS plot
+      p2<-p2+geom_point(data=pred.val.set, aes(x=predicted,y=error), color="green")
+      #lines at 0 and +/- one std deviation of error
+      p2<-p2+geom_abline(slope=0,intercept=sd(pred.val.set$error), linetype="dashed")
+      p2<-p2+geom_abline(slope=0,intercept=0)
+      p2<-p2+geom_abline(slope=0,intercept=-sd(pred.val.set$error), linetype="dashed")
+    }}}
+grid.arrange(p1,p2,nrow=1)
+
+
+
+split.proportions<-c(0.7,0.8,0.9)
+for(i in 1:3){
+  #create training/test sets
+  cross.val<-sample(1:nrow(dat.pusa),split.proportions[i]*nrow(dat.pusa) , replace=FALSE)
+  training.set<-dat.pusa[cross.val,] #the 50/70/90% to fit the model
+  test.set<-dat.pusa[-cross.val,] # the 50/30/10% to use as validation sample
+  #fit the model
+  pusa.lm <- lm(log(W8PUSA)~ W1ch12_15HH*W8DDEGP + W8QMAFI + W1wrk1aMP 
                 , data = dat.pusa)
   #create data frame to use in plots
   pred.val.set<-data.frame(predicted=predict(pusa.lm,test.set), 
