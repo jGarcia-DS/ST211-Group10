@@ -162,10 +162,9 @@ dat.grow$W8DMARSTAT <- with(dat.grow, Recode(W8DMARSTAT, "c(2) = 'Married'"))
 dat.grow$W8DMARSTAT <- with(dat.grow, Recode(W8DMARSTAT, "c(3,4,5,6,7,8,9) = 'Other'"))
 dat.grow$W8DMARSTAT<-relevel(dat.grow$W8DMARSTAT,ref="Single")
 
-
 dat.grow$W8DACTIVITYC <- with(dat.grow, Recode(W8DACTIVITYC, "c(1,2) = 'Employed'"))
-dat.grow$W8DACTIVITYC <- with(dat.grow, Recode(W8DACTIVITYC, "c(4) = 'Unemployed'"))
-dat.grow$W8DACTIVITYC <- with(dat.grow, Recode(W8DACTIVITYC, "c(3,5,6,7,8,10) = 'Other'"))
+dat.grow$W8DACTIVITYC <- with(dat.grow, Recode(W8DACTIVITYC, "c(5) = 'Education'"))
+dat.grow$W8DACTIVITYC <- with(dat.grow, Recode(W8DACTIVITYC, "c(3,4,6,7,8,10) = 'Other'"))
 dat.grow$W8DACTIVITYC <- with(dat.grow, Recode(W8DACTIVITYC, "c(9) = 'LookingAfterHome'"))
 dat.grow$W8DACTIVITYC<-relevel(dat.grow$W8DACTIVITYC,ref="Employed")
 
@@ -228,7 +227,7 @@ grow.lm <- lm(W8GROW ~ W1yschat1 + W1condur5MP + W1hea2MP
               + W1hwndayYP + W1truantYP + W1alceverYP  + W1bulrc + W1disabYP 
               + W2ghq12scr + W2disc1YP + W2depressYP + W6JobYP + W6UnivYP  
               + W6gcse + W6OwnchiDV + W6DebtattYP + W6als
-              + W8DDEGP + W8DGHQSC + W8DMARSTAT + W8DACTIVITYC + W8DWRK
+              + W8DDEGP + W8DGHQSC + W8DMARSTAT + W8DWRK 
               + W8CMSEX + W8TENURE + W8QMAFI 
               , data = dat.grow)
 
@@ -254,6 +253,15 @@ summary(lm(W8GROW ~ W1wrkfulldad
 summary(lm(W8GROW ~ W1empsdad
             , data = dat.grow))
  
+## For W8DACTIVITYC, W8DWRK
+
+summary(lm(W8GROW ~ W8DWRK   
+           , data = dat.grow))
+
+summary(lm(W8GROW ~ W8DACTIVITYC   
+           , data = dat.grow))
+
+
 
 ## Linear models of predictors that we removed 
 summary(lm(W8GROW ~ W1GrssyrMP, data = dat.grow))
@@ -274,7 +282,7 @@ grow.lm <- lm(log(W8GROW) ~ W1yschat1 + W1condur5MP + W1hea2MP
               + W1hwndayYP + W1truantYP + W1alceverYP  + W1bulrc + W1disabYP 
               + W2ghq12scr + W2disc1YP + W2depressYP + W6JobYP + W6UnivYP  
               + W6gcse + W6OwnchiDV + W6DebtattYP + W6als
-              + W8DDEGP + W8DGHQSC + W8DMARSTAT + W8DACTIVITYC + W8DWRK
+              + W8DDEGP + W8DGHQSC + W8DMARSTAT + W8DWRK
               + W8CMSEX + W8TENURE + W8QMAFI
               , data = dat.grow)
 summary(grow.lm)
@@ -349,7 +357,7 @@ no.outlier.dat.lm <- lm(log(W8GROW) ~ W1yschat1 + W1condur5MP + W1hea2MP
                         + W1hwndayYP + W1truantYP + W1alceverYP  + W1bulrc + W1disabYP 
                         + W2ghq12scr + W2disc1YP + W2depressYP + W6JobYP + W6UnivYP  
                         + W6gcse + W6OwnchiDV + W6DebtattYP + W6als
-                        + W8DDEGP + W8DGHQSC + W8DMARSTAT + W8DACTIVITYC + W8DWRK
+                        + W8DDEGP + W8DGHQSC + W8DMARSTAT + W8DWRK
                         + W8CMSEX + W8TENURE + W8QMAFI , data = no.outlier.dat)
 summary(no.outlier.dat.lm)
 
@@ -370,7 +378,7 @@ grow.lm <- lm(log(W8GROW) ~ W1yschat1 + W1condur5MP + W1hea2MP
               + W1hwndayYP + W1truantYP + W1alceverYP  + W1bulrc + W1disabYP 
               + W2ghq12scr + W2disc1YP + W2depressYP + W6JobYP + W6UnivYP  
               + W6gcse + W6OwnchiDV + W6DebtattYP + W6als
-              + W8DDEGP + W8DGHQSC + W8DMARSTAT + W8DACTIVITYC + W8DWRK
+              + W8DDEGP + W8DGHQSC + W8DMARSTAT + W8DWRK
               + W8CMSEX + W8TENURE + W8QMAFI
               , data = dat.grow)
 
@@ -381,7 +389,7 @@ Anova(grow.lm)
 
 ## Removing the non-significant predictors at the 5% level
 grow.lm <- lm(log(W8GROW) ~ W1ethgrpYP + W6UnivYP + W6OwnchiDV 
-              + W8DMARSTAT + W8DACTIVITYC + W8CMSEX + W8TENURE + W8QMAFI
+              + W8DMARSTAT + W8CMSEX + W8TENURE + W8QMAFI
               , data = dat.grow)
 
 summary(grow.lm)
@@ -396,7 +404,7 @@ hist(rstandard(grow.lm), freq = FALSE ,
 Anova(grow.lm)
 
 # Removed W1ethgrpYP, no longer signficant with a larger dataset 
-grow.lm <- lm(log(W8GROW) ~  W6UnivYP + W6OwnchiDV + W8DMARSTAT + W8DACTIVITYC 
+grow.lm <- lm(log(W8GROW) ~  W6UnivYP + W6OwnchiDV + W8DMARSTAT 
               + W8CMSEX + W8TENURE + W8QMAFI
               , data = dat.grow)
 
@@ -410,37 +418,22 @@ hist(rstandard(grow.lm), freq = FALSE ,
      cex.main=0.8, xlab="Standardised residuals")
 
 # Interactions
-grow.lm <- lm(log(W8GROW) ~  W6UnivYP + W6OwnchiDV + W8DMARSTAT + W8DACTIVITYC 
+grow.lm <- lm(log(W8GROW) ~  W6UnivYP + W6OwnchiDV + W8DMARSTAT  
               + W8CMSEX + W8TENURE*W8QMAFI
               , data = dat.grow)
 
 summary(grow.lm)
 
 
-grow.lm <- lm(log(W8GROW) ~  W6UnivYP*W6OwnchiDV + W8DMARSTAT + W8DACTIVITYC 
+grow.lm <- lm(log(W8GROW) ~  W6UnivYP*W6OwnchiDV + W8DMARSTAT  
               + W8CMSEX + W8TENURE + W8QMAFI
               , data = dat.grow)
 
-summary(grow.lm)
 
 summary(grow.lm)
-
-grow.lm <- lm(log(W8GROW) ~  W6UnivYP + W6OwnchiDV + W8DMARSTAT + W8CMSEX 
-              + W8TENURE + W8QMAFI*W8DACTIVITYC
-              , data = dat.grow)
-
-summary(grow.lm)
-
-
-grow.lm <- lm(log(W8GROW) ~  W6UnivYP + W6OwnchiDV + W8DMARSTAT 
-              + W8TENURE + W8QMAFI + W8DACTIVITYC*W8CMSEX
-              , data = dat.grow)
-
-summary(grow.lm)
-
 
 grow.lm <- lm(log(W8GROW) ~  W6UnivYP + W8DMARSTAT + W8CMSEX 
-              + W8TENURE + W8QMAFI*W6OwnchiDV + W8DACTIVITYC
+              + W8TENURE + W8QMAFI*W6OwnchiDV
               , data = dat.grow)
 
 summary(grow.lm)
@@ -448,14 +441,14 @@ summary(grow.lm)
 
 # Final Model
 grow.lm <- lm(log(W8GROW) ~  W6UnivYP*W8TENURE + W6OwnchiDV + W8DMARSTAT + W8CMSEX 
-               + W8QMAFI + W8DACTIVITYC 
+               + W8QMAFI  
               , data = dat.grow)
 
 summary(grow.lm)
 
 # Adding back the predictors we initially removed to see if there is anything interesting about the final model
 grow.lm <- lm(log(W8GROW) ~  W6UnivYP*W8TENURE + W6OwnchiDV + W8DMARSTAT + W8CMSEX 
-              + W8QMAFI + W8DACTIVITYC + W1empsdad + W1wrk1aMP + W1NoldBroHS 
+              + W8QMAFI  + W1empsdad + W1wrk1aMP + W1NoldBroHS 
               + W1wrkfullmum + W6acqno 
               , data = dat.grow)
 
@@ -465,7 +458,7 @@ vif(grow.lm)
 
 # vif fixed but empsdad became a predictor
 grow.lm <- lm(log(W8GROW) ~  W6UnivYP*W8TENURE + W6OwnchiDV + W8DMARSTAT + W8CMSEX 
-              + W8QMAFI + W8DACTIVITYC + W1empsdad + W1NoldBroHS + W6acqno
+              + W8QMAFI + W1empsdad + W1NoldBroHS + W6acqno
               , data = dat.grow)
 
 summary(grow.lm)
@@ -474,7 +467,7 @@ vif(grow.lm)
  
 # W1empsdad is significant so keep it and remove the others
 grow.lm <- lm(log(W8GROW) ~ W6UnivYP*W8TENURE + W6OwnchiDV + W8DMARSTAT + W8CMSEX 
-              + W8QMAFI + W8DACTIVITYC + W1empsdad 
+              + W8QMAFI + W1empsdad 
               , data = dat.grow)
 
 summary(grow.lm)
@@ -492,7 +485,7 @@ Anova(grow.lm)
 # FINAL MODEL
 
 grow.lm <- lm(log(W8GROW) ~  W6UnivYP*W8TENURE + W6OwnchiDV + W8DMARSTAT + W8CMSEX 
-              + W8QMAFI + W8DACTIVITYC + W1empsdad
+              + W8QMAFI + W1empsdad
               , data = dat.grow)
 summary(grow.lm)
 
@@ -546,14 +539,9 @@ dat.grow$W8QMAFI <- with(dat.grow, Recode(W8QMAFI, "c(3) = 'Average'"))
 dat.grow$W8QMAFI <- with(dat.grow, Recode(W8QMAFI, "c(4,5) = 'BelowAverage'"))
 dat.grow$W8QMAFI<-relevel(dat.grow$W8QMAFI,ref="AboveAverage")
 
-dat.grow$W8DACTIVITYC <- with(dat.grow, Recode(W8DACTIVITYC, "c(1,2) = 'Employed'"))
-dat.grow$W8DACTIVITYC <- with(dat.grow, Recode(W8DACTIVITYC, "c(4) = 'Unemployed'"))
-dat.grow$W8DACTIVITYC <- with(dat.grow, Recode(W8DACTIVITYC, "c(3,5,6,7,8,10) = 'Other'"))
-dat.grow$W8DACTIVITYC <- with(dat.grow, Recode(W8DACTIVITYC, "c(9) = 'LookingAfterHome'"))
-dat.grow$W8DACTIVITYC<-relevel(dat.grow$W8DACTIVITYC,ref="Employed")
 
 grow.lm <- lm(log(W8GROW) ~  W6UnivYP*W8TENURE + W6OwnchiDV + W8DMARSTAT + W8CMSEX 
-              + W8QMAFI + W8DACTIVITYC + W1empsdad
+              + W8QMAFI + W1empsdad
               , data = dat.grow)
 
 summary(grow.lm)
@@ -605,14 +593,9 @@ dat.grow$W8QMAFI <- with(dat.grow, Recode(W8QMAFI, "c(3) = 'Average'"))
 dat.grow$W8QMAFI <- with(dat.grow, Recode(W8QMAFI, "c(4,5) = 'BelowAverage'"))
 dat.grow$W8QMAFI<-relevel(dat.grow$W8QMAFI,ref="AboveAverage")
 
-dat.grow$W8DACTIVITYC <- with(dat.grow, Recode(W8DACTIVITYC, "c(1,2) = 'Employed'"))
-dat.grow$W8DACTIVITYC <- with(dat.grow, Recode(W8DACTIVITYC, "c(4) = 'Unemployed'"))
-dat.grow$W8DACTIVITYC <- with(dat.grow, Recode(W8DACTIVITYC, "c(3,5,6,7,8,10) = 'Other'"))
-dat.grow$W8DACTIVITYC <- with(dat.grow, Recode(W8DACTIVITYC, "c(9) = 'LookingAfterHome'"))
-dat.grow$W8DACTIVITYC<-relevel(dat.grow$W8DACTIVITYC,ref="Employed")
 
 grow.lm <- lm(log(W8GROW) ~  W6UnivYP*W8TENURE + W6OwnchiDV + W8DMARSTAT + W8CMSEX 
-              + W8QMAFI + W8DACTIVITYC + W1empsdad
+              + W8QMAFI + W1empsdad
               , data = dat.grow)
 
 summary(grow.lm)
@@ -666,12 +649,6 @@ dat.grow$W8QMAFI <- with(dat.grow, Recode(W8QMAFI, "c(3) = 'Average'"))
 dat.grow$W8QMAFI <- with(dat.grow, Recode(W8QMAFI, "c(4,5) = 'BelowAverage'"))
 dat.grow$W8QMAFI<-relevel(dat.grow$W8QMAFI,ref="AboveAverage")
 
-dat.grow$W8DACTIVITYC <- with(dat.grow, Recode(W8DACTIVITYC, "c(1,2) = 'Employed'"))
-dat.grow$W8DACTIVITYC <- with(dat.grow, Recode(W8DACTIVITYC, "c(4) = 'Unemployed'"))
-dat.grow$W8DACTIVITYC <- with(dat.grow, Recode(W8DACTIVITYC, "c(3,5,6,7,8,10) = 'Other'"))
-dat.grow$W8DACTIVITYC <- with(dat.grow, Recode(W8DACTIVITYC, "c(9) = 'LookingAfterHome'"))
-dat.grow$W8DACTIVITYC<-relevel(dat.grow$W8DACTIVITYC,ref="Employed")
-
 
 
 for(i in 1:3){
@@ -681,7 +658,7 @@ for(i in 1:3){
   test.set<-dat.grow[-cross.val,] # the 20% to use as validation sample
   #fit the model
   grow.lm <- grow.lm <- lm(log(W8GROW) ~  W6UnivYP*W8TENURE + W6OwnchiDV + W8DMARSTAT + W8CMSEX 
-                           + W8QMAFI + W8DACTIVITYC + W1empsdad
+                           + W8QMAFI + W1empsdad
                            , data = dat.grow)
   #create data frame to use in plots
   pred.val.set<-data.frame(predicted=predict(grow.lm,test.set), 
@@ -765,13 +742,6 @@ dat.grow$W8QMAFI <- with(dat.grow, Recode(W8QMAFI, "c(3) = 'Average'"))
 dat.grow$W8QMAFI <- with(dat.grow, Recode(W8QMAFI, "c(4,5) = 'BelowAverage'"))
 dat.grow$W8QMAFI<-relevel(dat.grow$W8QMAFI,ref="AboveAverage")
 
-dat.grow$W8DACTIVITYC <- with(dat.grow, Recode(W8DACTIVITYC, "c(1,2) = 'Employed'"))
-dat.grow$W8DACTIVITYC <- with(dat.grow, Recode(W8DACTIVITYC, "c(4) = 'Unemployed'"))
-dat.grow$W8DACTIVITYC <- with(dat.grow, Recode(W8DACTIVITYC, "c(3,5,6,7,8,10) = 'Other'"))
-dat.grow$W8DACTIVITYC <- with(dat.grow, Recode(W8DACTIVITYC, "c(9) = 'LookingAfterHome'"))
-dat.grow$W8DACTIVITYC<-relevel(dat.grow$W8DACTIVITYC,ref="Employed")
-
-
 for(i in 1:3){
   #create training/test sets
   cross.val<-sample(1:nrow(dat.grow),0.8*nrow(dat.grow) , replace=FALSE)
@@ -779,7 +749,7 @@ for(i in 1:3){
   test.set<-dat.grow[-cross.val,] # the 20% to use as validation sample
   #fit the model
   grow.lm <- grow.lm <- lm(log(W8GROW) ~  W6UnivYP*W8TENURE + W6OwnchiDV + W8DMARSTAT + W8CMSEX 
-                           + W8QMAFI + W8DACTIVITYC + W1empsdad
+                           + W8QMAFI + W1empsdad
                            , data = dat.grow)
   #create data frame to use in plots
   pred.val.set<-data.frame(predicted=predict(grow.lm,test.set), 
@@ -863,12 +833,6 @@ dat.grow$W8QMAFI <- with(dat.grow, Recode(W8QMAFI, "c(3) = 'Average'"))
 dat.grow$W8QMAFI <- with(dat.grow, Recode(W8QMAFI, "c(4,5) = 'BelowAverage'"))
 dat.grow$W8QMAFI<-relevel(dat.grow$W8QMAFI,ref="AboveAverage")
 
-dat.grow$W8DACTIVITYC <- with(dat.grow, Recode(W8DACTIVITYC, "c(1,2) = 'Employed'"))
-dat.grow$W8DACTIVITYC <- with(dat.grow, Recode(W8DACTIVITYC, "c(4) = 'Unemployed'"))
-dat.grow$W8DACTIVITYC <- with(dat.grow, Recode(W8DACTIVITYC, "c(3,5,6,7,8,10) = 'Other'"))
-dat.grow$W8DACTIVITYC <- with(dat.grow, Recode(W8DACTIVITYC, "c(9) = 'LookingAfterHome'"))
-dat.grow$W8DACTIVITYC<-relevel(dat.grow$W8DACTIVITYC,ref="Employed")
-
 split.proportions<-c(0.7,0.8,0.9)
 for(i in 1:3){
   #create training/test sets
@@ -877,7 +841,7 @@ for(i in 1:3){
   test.set<-dat.grow[-cross.val,] # the 50/30/10% to use as validation sample
   #fit the model
   cv.grow.lm<-grow.lm <- lm(log(W8GROW) ~  W6UnivYP*W8TENURE + W6OwnchiDV + W8DMARSTAT + W8CMSEX 
-                            + W8QMAFI + W8DACTIVITYC + W1empsdad
+                            + W8QMAFI + W1empsdad
                             , data = dat.grow)
   
   #create data frame to use in plots
@@ -960,12 +924,6 @@ dat.grow$W8QMAFI <- with(dat.grow, Recode(W8QMAFI, "c(3) = 'Average'"))
 dat.grow$W8QMAFI <- with(dat.grow, Recode(W8QMAFI, "c(4,5) = 'BelowAverage'"))
 dat.grow$W8QMAFI<-relevel(dat.grow$W8QMAFI,ref="AboveAverage")
 
-dat.grow$W8DACTIVITYC <- with(dat.grow, Recode(W8DACTIVITYC, "c(1,2) = 'Employed'"))
-dat.grow$W8DACTIVITYC <- with(dat.grow, Recode(W8DACTIVITYC, "c(4) = 'Unemployed'"))
-dat.grow$W8DACTIVITYC <- with(dat.grow, Recode(W8DACTIVITYC, "c(3,5,6,7,8,10) = 'Other'"))
-dat.grow$W8DACTIVITYC <- with(dat.grow, Recode(W8DACTIVITYC, "c(9) = 'LookingAfterHome'"))
-dat.grow$W8DACTIVITYC<-relevel(dat.grow$W8DACTIVITYC,ref="Employed")
-
 split.proportions<-c(0.7,0.8,0.9)
 for(i in 1:3){
   #create training/test sets
@@ -974,7 +932,7 @@ for(i in 1:3){
   test.set<-dat.grow[-cross.val,] # the 50/30/10% to use as validation sample
   #fit the model
   cv.grow.lm<-grow.lm <- lm(log(W8GROW) ~  W6UnivYP*W8TENURE + W6OwnchiDV + W8DMARSTAT + W8CMSEX 
-                            + W8QMAFI + W8DACTIVITYC + W1empsdad
+                            + W8QMAFI + W1empsdad
                             , data = dat.grow)
   
   #create data frame to use in plots
@@ -1017,5 +975,6 @@ for(i in 1:3){
     }}}
 grid.arrange(p1,p2,nrow=1)
 
-### NEED TO ADD THE TRANSFORMATIONS, TRYING OUT CENTERING AND OTHER STUFF,
+### NEED TO ADD THE TRANSFORMATIONS, TRYING OUT CENTERING AND OTHER STUFF, FILE NAME FOR 
+#read.csv
 
